@@ -7,9 +7,15 @@
   packages = ["pbkdf2"]
   revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
+[[projects]]
+  name = "golang.org/x/text"
+  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d7f1a7207c39125afcb9ca2365832cb83458edfc17f2f7e8d28fd56f19436856"
+  inputs-digest = "10737a3fc9bedcf4c247bd2542cb571f81f5b38df1d8a09116a471e9f36798f2"
   solver-name = "gps-cdcl"
   solver-version = 1

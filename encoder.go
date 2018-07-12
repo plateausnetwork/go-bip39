@@ -9,6 +9,7 @@ import (
 
 	"github.com/tyler-smith/go-bip39/wordlists"
 	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/text/unicode/norm"
 )
 
 var (
@@ -158,6 +159,7 @@ func (e *Encoder) UnmarshalEntropy(mnemonic string) ([]byte, error) {
 // NewSeed creates a hashed seed from given the mnemonic and a password.
 // The mnemonic is checked for validity.
 func (e *Encoder) NewSeed(mnemonic string, password string) ([]byte, error) {
+	mnemonic = norm.NFKD.String(mnemonic)
 	_, err := e.UnmarshalEntropy(mnemonic)
 	if err != nil {
 		return nil, err
