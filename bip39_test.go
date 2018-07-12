@@ -7,68 +7,18 @@ import (
 )
 
 type vector struct {
-	entropy  string
-	mnemonic string
-	seed     string
-}
-
-func TestNewMnemonic(t *testing.T) {
-	for _, vector := range testVectors() {
-		entropy, err := hex.DecodeString(vector.entropy)
-		assertNil(t, err)
-
-		mnemonic, err := NewMnemonic(entropy)
-		assertNil(t, err)
-		assertEqualString(t, vector.mnemonic, mnemonic)
-
-		_, err = NewSeedWithErrorChecking(mnemonic, "TREZOR")
-		assertNil(t, err)
-
-		seed := NewSeed(mnemonic, "TREZOR")
-		assertEqualString(t, vector.seed, hex.EncodeToString(seed))
-	}
-}
-
-func TestNewMnemonicInvalidEntropy(t *testing.T) {
-	_, err := NewMnemonic([]byte{})
-	assertNotNil(t, err)
-}
-
-func TestNewSeedWithErrorCheckingInvalidMnemonics(t *testing.T) {
-	for _, vector := range badMnemonicSentences() {
-		_, err := NewSeedWithErrorChecking(vector.mnemonic, "TREZOR")
-		assertNotNil(t, err)
-	}
-}
-
-func TestIsMnemonicValid(t *testing.T) {
-	for _, vector := range badMnemonicSentences() {
-		assertFalse(t, IsMnemonicValid(vector.mnemonic))
-	}
-
-	for _, vector := range testVectors() {
-		assertTrue(t, IsMnemonicValid(vector.mnemonic))
-	}
-}
-
-func TestInvalidMnemonicFails(t *testing.T) {
-	for _, vector := range badMnemonicSentences() {
-		_, err := MnemonicToByteArray(vector.mnemonic)
-		assertNotNil(t, err)
-	}
-
-	_, err := MnemonicToByteArray("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon yellow")
-	assertNotNil(t, err)
-	assertEqual(t, err, ErrChecksumIncorrect)
+	entropy    string
+	mnemonic   string
+	seed       string
+	passphrase string
 }
 
 func TestNewEntropy(t *testing.T) {
-	// Good tests.
 	for i := 128; i <= 256; i += 32 {
 		_, err := NewEntropy(i)
 		assertNil(t, err)
 	}
-	// Bad Values
+
 	for i := 0; i <= 256; i++ {
 		if i%8 != 0 {
 			_, err := NewEntropy(i)
@@ -77,7 +27,45 @@ func TestNewEntropy(t *testing.T) {
 	}
 }
 
-func TestMnemonicToByteArrayForDifferentArrayLangths(t *testing.T) {
+func TestNewSeedInvalidMnemonics(t *testing.T) {
+	for _, vector := range badMnemonicSentences() {
+		_, err := NewSeed(vector.mnemonic, "TREZOR")
+		assertNotNil(t, err)
+	}
+}
+
+func TestMarshalEntropy(t *testing.T) {
+	for _, vector := range englishTestVectors() {
+		entropy, err := hex.DecodeString(vector.entropy)
+		assertNil(t, err)
+
+		mnemonic, err := MarshalEntropy(entropy)
+		assertNil(t, err)
+		assertEqualString(t, vector.mnemonic, mnemonic)
+
+		seed, err := NewSeed(mnemonic, "TREZOR")
+		assertNil(t, err)
+		assertEqualString(t, vector.seed, hex.EncodeToString(seed))
+	}
+}
+
+func TestMarshalEntropyInvalidEntropy(t *testing.T) {
+	_, err := MarshalEntropy([]byte{})
+	assertNotNil(t, err)
+}
+
+func TestUnmarshalEntropyInvalidMnemonic(t *testing.T) {
+	for _, vector := range badMnemonicSentences() {
+		_, err := UnmarshalEntropy(vector.mnemonic)
+		assertNotNil(t, err)
+	}
+
+	_, err := UnmarshalEntropy("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon yellow")
+	assertNotNil(t, err)
+	assertEqual(t, err, ErrChecksumIncorrect)
+}
+
+func TestUnmarshalEntropyForDifferentArrayLangths(t *testing.T) {
 	max := 1000
 	for i := 0; i < max; i++ {
 		//16, 20, 24, 28, 32
@@ -89,82 +77,19 @@ func TestMnemonicToByteArrayForDifferentArrayLangths(t *testing.T) {
 			t.Errorf("Wrong number of bytes read: %d", n)
 		}
 
-		mnemonic, err := NewMnemonic(seed)
+		mnemonic, err := MarshalEntropy(seed)
 		if err != nil {
 			t.Errorf("%v", err)
 		}
 
-		_, err = MnemonicToByteArray(mnemonic)
+		_, err = UnmarshalEntropy(mnemonic)
 		if err != nil {
 			t.Errorf("Failed for %x - %v", seed, mnemonic)
 		}
 	}
 }
-func TestPadByteSlice(t *testing.T) {
-	assertEqualByteSlices(t, []byte{0}, padByteSlice([]byte{}, 1))
-	assertEqualByteSlices(t, []byte{0, 1}, padByteSlice([]byte{1}, 2))
-	assertEqualByteSlices(t, []byte{1, 1}, padByteSlice([]byte{1, 1}, 2))
-	assertEqualByteSlices(t, []byte{1, 1, 1}, padByteSlice([]byte{1, 1, 1}, 2))
-}
 
-func TestCompareByteSlices(t *testing.T) {
-	assertTrue(t, compareByteSlices([]byte{}, []byte{}))
-	assertTrue(t, compareByteSlices([]byte{1}, []byte{1}))
-	assertFalse(t, compareByteSlices([]byte{1}, []byte{0}))
-	assertFalse(t, compareByteSlices([]byte{1}, []byte{}))
-	assertFalse(t, compareByteSlices([]byte{1}, nil))
-}
-
-func assertNil(t *testing.T, object interface{}) {
-	if object != nil {
-		t.Errorf("Expected nil, got %v", object)
-	}
-}
-
-func assertNotNil(t *testing.T, object interface{}) {
-	if object == nil {
-		t.Error("Expected not nil")
-	}
-}
-
-func assertTrue(t *testing.T, a bool) {
-	if !a {
-		t.Error("Expected true, got false")
-	}
-}
-
-func assertFalse(t *testing.T, a bool) {
-	if a {
-		t.Error("Expected false, got true")
-	}
-}
-
-func assertEqual(t *testing.T, a, b interface{}) {
-	if a != b {
-		t.Errorf("Objects not equal, expected `%s` and got `%s`", a, b)
-	}
-}
-
-func assertEqualString(t *testing.T, a, b string) {
-	if a != b {
-		t.Errorf("Strings not equal, expected `%s` and got `%s`", a, b)
-	}
-}
-
-func assertEqualByteSlices(t *testing.T, a, b []byte) {
-	if len(a) != len(b) {
-		t.Errorf("Byte slices not equal, expected %v and got %v", a, b)
-		return
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			t.Errorf("Byte slices not equal, expected %v and got %v", a, b)
-			return
-		}
-	}
-}
-
-func TestMnemonicToByteArrayForZeroLeadingSeeds(t *testing.T) {
+func TestUnmarshalEntropyForZeroLeadingSeeds(t *testing.T) {
 	ms := []string{
 		"00000000000000000000000000000000",
 		"00a84c51041d49acca66e6160c1fa999",
@@ -247,14 +172,78 @@ func TestMnemonicToByteArrayForZeroLeadingSeeds(t *testing.T) {
 	for _, m := range ms {
 		seed, _ := hex.DecodeString(m)
 
-		mnemonic, err := NewMnemonic(seed)
+		mnemonic, err := MarshalEntropy(seed)
 		if err != nil {
 			t.Errorf("%v", err)
 		}
 
-		_, err = MnemonicToByteArray(mnemonic)
+		_, err = UnmarshalEntropy(mnemonic)
 		if err != nil {
 			t.Errorf("Failed for %x - %v", seed, mnemonic)
+		}
+	}
+}
+
+func TestPadByteSlice(t *testing.T) {
+	assertEqualByteSlices(t, []byte{0}, padByteSlice([]byte{}, 1))
+	assertEqualByteSlices(t, []byte{0, 1}, padByteSlice([]byte{1}, 2))
+	assertEqualByteSlices(t, []byte{1, 1}, padByteSlice([]byte{1, 1}, 2))
+	assertEqualByteSlices(t, []byte{1, 1, 1}, padByteSlice([]byte{1, 1, 1}, 2))
+}
+
+func TestCompareByteSlices(t *testing.T) {
+	assertTrue(t, compareByteSlices([]byte{}, []byte{}))
+	assertTrue(t, compareByteSlices([]byte{1}, []byte{1}))
+	assertFalse(t, compareByteSlices([]byte{1}, []byte{0}))
+	assertFalse(t, compareByteSlices([]byte{1}, []byte{}))
+	assertFalse(t, compareByteSlices([]byte{1}, nil))
+}
+
+func assertNil(t *testing.T, object interface{}) {
+	if object != nil {
+		t.Errorf("Expected nil, got %v", object)
+	}
+}
+
+func assertNotNil(t *testing.T, object interface{}) {
+	if object == nil {
+		t.Error("Expected not nil")
+	}
+}
+
+func assertTrue(t *testing.T, a bool) {
+	if !a {
+		t.Error("Expected true, got false")
+	}
+}
+
+func assertFalse(t *testing.T, a bool) {
+	if a {
+		t.Error("Expected false, got true")
+	}
+}
+
+func assertEqual(t *testing.T, a, b interface{}) {
+	if a != b {
+		t.Errorf("Objects not equal, expected `%s` and got `%s`", a, b)
+	}
+}
+
+func assertEqualString(t *testing.T, a, b string) {
+	if a != b {
+		t.Errorf("Strings not equal, expected `%s` and got `%s`", a, b)
+	}
+}
+
+func assertEqualByteSlices(t *testing.T, a, b []byte) {
+	if len(a) != len(b) {
+		t.Errorf("Byte slices not equal, expected %v and got %v", a, b)
+		return
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			t.Errorf("Byte slices not equal, expected %v and got %v", a, b)
+			return
 		}
 	}
 }
@@ -279,7 +268,7 @@ func badMnemonicSentences() []vector {
 	}
 }
 
-func testVectors() []vector {
+func englishTestVectors() []vector {
 	return []vector{
 		{
 			entropy:  "00000000000000000000000000000000",
