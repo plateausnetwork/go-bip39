@@ -91,7 +91,7 @@ func newApp() *cli.App {
 func generateMnemonic(entropySize int, language string) (string, error) {
 	wordList, ok := wordlists.AvailableLists[language]
 	if !ok {
-		return "", bip39.ErrUknownLanguage
+		return "", bip39.ErrUnknownLanguage
 	}
 	bip39.SetWordList(wordList)
 
