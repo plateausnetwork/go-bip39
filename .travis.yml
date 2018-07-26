@@ -1,12 +1,7 @@
 language: go
-go: 
- - "1.6.x"
- - "1.7.x"
- - "1.8.x"
- - "1.9.x"
- - "1.10.x"
- - "release"
- - "tip"
-
+go:
+  - "1.9.x"
+  - "1.10.x"
+  - "release"
 script:
- - make profile_tests
+  - make profile_tests
