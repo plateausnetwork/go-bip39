@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := help
 
+VERSION := $(shell git describe --tags --abbrev=0)
+
 tests: ## Run tests with coverage
 	go test -v -cover ./...
 
@@ -8,7 +10,7 @@ profile_tests: ## Run tests and output coverage profiling
 	go tool cover -html=coverage.out
 
 cli: ## Build CLI binary
-	go build -o ./dist/bip39 ./cmd/*
+	go build -o ./dist/bip39 -ldflags "-X main.version=${VERSION}" ./cmd/*.go
 
 clean: ## Clear all build artifacts
 	rm -r ./dist
