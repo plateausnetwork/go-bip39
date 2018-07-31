@@ -3,14 +3,13 @@ go:
   - "1.10"
 script:
   - make profile_tests
+before_deploy:
   - VERSION=$TRAVIS_TAG make cli
 deploy:
   provider: releases
-  api_key:
-    secure: n+bXynw4I7PGwya5+g+o5QTcgby+UBu+t68jcupDDlQXBweqG4kYkVAKdwS/Qju2rm5bP/TPwOAcwcVcZmSJbbj4fOa794lqcUKuMbZe/c1aXDhsT7gTmc07xXqLpDpVjtt/XiBghsbZ9ocV+DuHB6Q2/SikxyksZFkVyKdV6G8H4IFW+KlAGm9ybara9JzReDfcLrO66Cb1XiAPUVBxhX0A6bzHubNZYbp0l1gQSXu72jkVZ6xP7e5nm3AcOu3PIPb93Y1i0UvmndszJcg9W8HmbFZdB3Ca/nPHkSSwuK11+YSqgi6lfFamxsbbVDUU32khFuXZbgiaqB4/QGgzCabrIeiVg0ffi8GwC/UJ5lizWVGEIc7Yep3oDBZ8xZePNOPrA6+t80l6m1VoKGABUz8kLQnBdG6ZKtIZ/BKacNSTPzk8Cjo8+7kbqGyYTcdTp/v5VjBcBTJzZ1YrB/IvBQRHUWQmu+871BUcvXRYNxz+J4WI/mReO03vvh/+qS//fKMm6otATMBSpq4fGJhhEzObAsiLvfLc+B//+i5/5eq6wUlbgTJTnKkdGlq+/7jmqidhn1DLI2nSS85Mc+vQONCpCBFnOScANCOU7J1ds518NNWDQoEBU0b00tX23RrKmT/trtYfe/Qs9hPAgqd+lFh+f0yvf2DBbnUSWep1BFE=
-  file_glob: true
-  file: dist/*
+  skip_cleanup: true
+  file: dist/bip39
   on:
     tags: true
-after_deploy:
-  - rm -r ./dist || true
+  api_key:
+    secure: n+bXynw4I7PGwya5+g+o5QTcgby+UBu+t68jcupDDlQXBweqG4kYkVAKdwS/Qju2rm5bP/TPwOAcwcVcZmSJbbj4fOa794lqcUKuMbZe/c1aXDhsT7gTmc07xXqLpDpVjtt/XiBghsbZ9ocV+DuHB6Q2/SikxyksZFkVyKdV6G8H4IFW+KlAGm9ybara9JzReDfcLrO66Cb1XiAPUVBxhX0A6bzHubNZYbp0l1gQSXu72jkVZ6xP7e5nm3AcOu3PIPb93Y1i0UvmndszJcg9W8HmbFZdB3Ca/nPHkSSwuK11+YSqgi6lfFamxsbbVDUU32khFuXZbgiaqB4/QGgzCabrIeiVg0ffi8GwC/UJ5lizWVGEIc7Yep3oDBZ8xZePNOPrA6+t80l6m1VoKGABUz8kLQnBdG6ZKtIZ/BKacNSTPzk8Cjo8+7kbqGyYTcdTp/v5VjBcBTJzZ1YrB/IvBQRHUWQmu+871BUcvXRYNxz+J4WI/mReO03vvh/+qS//fKMm6otATMBSpq4fGJhhEzObAsiLvfLc+B//+i5/5eq6wUlbgTJTnKkdGlq+/7jmqidhn1DLI2nSS85Mc+vQONCpCBFnOScANCOU7J1ds518NNWDQoEBU0b00tX23RrKmT/trtYfe/Qs9hPAgqd+lFh+f0yvf2DBbnUSWep1BFE=
