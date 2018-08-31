@@ -14,7 +14,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/tyler-smith/go-bip39/wordlists"
+	"github.com/rafaelescrich/go-bip39/wordlists"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -68,7 +68,7 @@ var (
 )
 
 func init() {
-	SetWordList(wordlists.English)
+	SetWordList(wordlists.BrazilianPortuguese)
 }
 
 // SetWordList sets the list of words to use for mnemonics. Currently the list

@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/tyler-smith/go-bip39"
+	"github.com/rafaelescrich/go-bip39"
 )
 
 func ExampleNewMnemonic() {
@@ -17,12 +17,12 @@ func ExampleNewMnemonic() {
 	mnemomic, _ := bip39.NewMnemonic(entropy)
 	fmt.Println(mnemomic)
 	// output:
-	// all hour make first leader extend hole alien behind guard gospel lava path output census museum junior mass reopen famous sing advance salt reform
+	// agua fita inquilino entrada herdar editar ficcao agosto ataque extra exercito habilidade misericordia membro camera levantar girar investir parede embarcacao pulso adiante planta palacio
 }
 
 func ExampleNewSeed() {
-	seed := bip39.NewSeed("all hour make first leader extend hole alien behind guard gospel lava path output census museum junior mass reopen famous sing advance salt reform", "TREZOR")
+	seed := bip39.NewSeed("agua fita inquilino entrada herdar editar ficcao agosto ataque extra exercito habilidade misericordia membro camera levantar girar investir parede embarcacao pulso adiante planta palacio", "TREZOR")
 	fmt.Println(hex.EncodeToString(seed))
 	// output:
-	// 26e975ec644423f4a4c4f4215ef09b4bd7ef924e85d1d17c4cf3f136c2863cf6df0a475045652c57eb5fb41513ca2a2d67722b77e954b4b3fc11f7590449191d
+	// e9ba894700dbc996b82446b30d4a2f2d56adc6c07f3d1602c3d24e516a344affac43a05f895d416902fcc78ae734d1622edf69e923532fee8d93d359780ac34a
 }
