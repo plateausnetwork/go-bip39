@@ -12,9 +12,11 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"runtime"
 	"strings"
 
 	"github.com/rhizomplatform/go-bip39/wordlists"
+	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -241,17 +243,20 @@ func MnemonicToByteArray(mnemonic string, raw ...bool) ([]byte, error) {
 
 // NewSeedWithErrorChecking creates a hashed seed output given the mnemonic string and a password.
 // An error is returned if the mnemonic is not convertible to a byte array.
-func NewSeedWithErrorChecking(mnemonic string, password string) ([]byte, error) {
+func NewSeedWithErrorChecking(mnemonic string, password string, arg2 bool) ([]byte, error) {
 	_, err := MnemonicToByteArray(mnemonic)
 	if err != nil {
 		return nil, err
 	}
-	return NewSeed(mnemonic, password), nil
+	return NewSeed(mnemonic, password, arg2), nil
 }
 
 // NewSeed creates a hashed seed output given a provided string and password.
 // No checking is performed to validate that the string provided is a valid mnemonic.
-func NewSeed(mnemonic string, password string) []byte {
+func NewSeed(mnemonic string, password string, arg2 bool) []byte {
+	if arg2 {
+		return argon2.Key([]byte(mnemonic), []byte("mnemonic"+password), 3, 32*1024, uint8(runtime.NumCPU()), 32)
+	}
 	return pbkdf2.Key([]byte(mnemonic), []byte("mnemonic"+password), 2048, 64, sha512.New)
 }
 

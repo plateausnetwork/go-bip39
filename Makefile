@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := help
 
+deps:
+	go get -v ./...
+
 tests: ## Run tests with coverage
 	go test -v -cover ./...
 

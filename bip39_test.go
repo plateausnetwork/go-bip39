@@ -21,10 +21,10 @@ func TestNewMnemonic(t *testing.T) {
 		assertNil(t, err)
 		assertEqualString(t, vector.mnemonic, mnemonic)
 
-		_, err = NewSeedWithErrorChecking(mnemonic, "TREZOR")
+		_, err = NewSeedWithErrorChecking(mnemonic, "TREZOR", false)
 		assertNil(t, err)
 
-		seed := NewSeed(mnemonic, "TREZOR")
+		seed := NewSeed(mnemonic, "TREZOR", false)
 		assertEqualString(t, vector.seed, hex.EncodeToString(seed))
 	}
 }
@@ -36,7 +36,7 @@ func TestNewMnemonicInvalidEntropy(t *testing.T) {
 
 func TestNewSeedWithErrorCheckingInvalidMnemonics(t *testing.T) {
 	for _, vector := range badMnemonicSentences() {
-		_, err := NewSeedWithErrorChecking(vector.mnemonic, "TREZOR")
+		_, err := NewSeedWithErrorChecking(vector.mnemonic, "TREZOR", false)
 		assertNotNil(t, err)
 	}
 }
